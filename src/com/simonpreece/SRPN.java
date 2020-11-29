@@ -9,9 +9,8 @@ import java.util.Stack;
  * that all arithmetic is saturated, i.e. when it reaches the maximum value that can be stored in a variable, it stays
  * at the maximum rather than wrapping around...Your task is to write a program which matches the functionality of SRPN
  * as closely as possible. Note that this includes not adding or enhancing existing features."
- */
-
-/**
+ * <p>
+ * <p>
  * Standard RPN behaviour - to be matched
  * <p>
  * Standard Reverse Polish Notation description: https://en.wikipedia.org/wiki/Reverse_Polish_notation
@@ -203,7 +202,7 @@ public class SRPN {
                                     }
                                     else {
                                         if (debugMode) {
-                                            System.out.printf("Character is a valid operator");
+                                            System.out.println("Character is a valid operator");
                                         }
 
 
@@ -232,44 +231,47 @@ public class SRPN {
                                                 }
 
                                             }
-                                        /* The original 'loses' the number at this point if it can't save it, so leave
-                                            following outside the check. */
+                                            /* The original 'loses' the number at this point if it can't save it, so leave
+                                                                                    following outside the check. */
                                             currentNumToStore = 0;
                                             isNumToStore = false;
-                                            //....POSS SPLIT ABOVE OUT INTO ANOTHER FUNCTION
-                                        }
+                                        }// - End of NumStore
 
 
-                                        if (minusReceivedAfterOtherOperator && (currentChar == '-')) {/* original seems to convert the current char to a plus at this point*/
-                                            //   currentChar = '+';
-                                        }
+                                        if (minusReceivedAfterOtherOperator) {
+                                            if (currentChar == '-') {/* two minuses in a row after another operator - definitely
+                                             execute inlineExecutionStack
+                                              original seems to convert the current char to a plus at this point*/
+                                                //   currentChar = '+'; // poss so this at some point???+
 
-
-                                        if (minusReceivedAfterOtherOperator && (currentChar != '-')) { /* the previous minus
-                                            did not turn out to be a number sign - check if the stack should have been
-                                            executed and do so (compare BODMAS of previous two chars). */
-                                            if (debugMode) {
-                                                System.out.println("Previous character was a minus but following was not a" +
-                                                        " number - checking if should have executed stack");
-                                            }
-                                            if (bodmasPriority(inlineExecutionStack.get(inlineExecutionStack.size() - 2)) >
-                                                    bodmasPriority(inlineExecutionStack.peek())) {
-                                                if (debugMode) {
-                                                    System.out.printf("Operator '%c'(%d) > '%c'(%d) - executing stack\n",
-                                                            inlineExecutionStack.get(inlineExecutionStack.size() - 2),
-                                                            bodmasPriority(inlineExecutionStack.get(inlineExecutionStack.size() - 2)),
-                                                            inlineExecutionStack.peek(),
-                                                            bodmasPriority(inlineExecutionStack.peek()));
-                                                }
                                                 executeInlineExecutionStack(true, false);
                                             }
-                                            else {
+                                            else { /* the previous minus
+                                            did not turn out to be a number sign - check if the stack should have been
+                                            executed and do so (compare BODMAS of previous two chars). */
                                                 if (debugMode) {
-                                                    System.out.printf("Operator '%c'(%d) !> '%c'(%d) - leaving stack in peace\n",
-                                                            inlineExecutionStack.get(inlineExecutionStack.size() - 2),
-                                                            bodmasPriority(inlineExecutionStack.get(inlineExecutionStack.size() - 2)),
-                                                            inlineExecutionStack.peek(),
-                                                            bodmasPriority(inlineExecutionStack.peek()));
+                                                    System.out.println("Previous character was a minus but following was not a" +
+                                                            " number - checking if should have executed stack");
+                                                }
+                                                if (bodmasPriority(inlineExecutionStack.get(inlineExecutionStack.size() - 2)) >
+                                                        bodmasPriority(inlineExecutionStack.peek())) {
+                                                    if (debugMode) {
+                                                        System.out.printf("Operator '%c'(%d) > '%c'(%d) - executing stack\n",
+                                                                inlineExecutionStack.get(inlineExecutionStack.size() - 2),
+                                                                bodmasPriority(inlineExecutionStack.get(inlineExecutionStack.size() - 2)),
+                                                                inlineExecutionStack.peek(),
+                                                                bodmasPriority(inlineExecutionStack.peek()));
+                                                    }
+                                                    executeInlineExecutionStack(true, false);
+                                                }
+                                                else {
+                                                    if (debugMode) {
+                                                        System.out.printf("Operator '%c'(%d) !> '%c'(%d) - leaving stack in peace\n",
+                                                                inlineExecutionStack.get(inlineExecutionStack.size() - 2),
+                                                                bodmasPriority(inlineExecutionStack.get(inlineExecutionStack.size() - 2)),
+                                                                inlineExecutionStack.peek(),
+                                                                bodmasPriority(inlineExecutionStack.peek()));
+                                                    }
                                                 }
                                             }
                                         }
@@ -330,7 +332,7 @@ public class SRPN {
                                                         " one in the stack\n", lastOperatorInStack, currentChar);
                                             }
                                         }
-                                        if(debugMode) {
+                                        if (debugMode) {
                                             System.out.printf("adding operator '%c' to command stack\n", currentChar);
                                         }
                                         inlineExecutionStack.push(currentChar);
