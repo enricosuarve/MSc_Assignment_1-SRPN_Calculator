@@ -115,14 +115,16 @@ public class SRPN {
         boolean lastCharWasOperator;
         boolean minusReceivedAfterOtherOperator;
         boolean isFirstChar = true; // End of commandBlock execution is skipped if first commandBlock is just an operator.
-        boolean lastCharWasMinus = false;
-        boolean twoMinusInARow = false;
+        boolean lastCharWasMinus ;
+        boolean twoMinusInARow ;
         if (s.length() > 0) { // Ignore empty lines as nothing to do.
             do {
                 currentTopOfStack = rp_NumberStack.size() - 1;
                 commandBlock = CommandScanner.next(); // Execute each set of instructions between whitespace separately.
                 lastCharWasOperator = false; // Reset for each block as they appear to process separately.
                 minusReceivedAfterOtherOperator = false;
+                lastCharWasMinus = false;
+                twoMinusInARow = false;
                 if (debugMode) {
                     System.out.println("processing commandBlock '" + commandBlock + "'");
                 }
