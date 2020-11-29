@@ -696,7 +696,7 @@ public class SRPNTest {
         srpn.processCommand("20");
         srpn.processCommand("5--8/*25");
         srpn.processCommand("d");
-        String[] strArrayExpected = {"21", "129"};
+        String[] strArrayExpected = {"515"};
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }

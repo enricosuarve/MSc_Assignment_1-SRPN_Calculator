@@ -208,6 +208,32 @@ public class SRPN {
                                         if (isNumToStore) { /* Check if have already previously been passed a number, if so
                                                                 add it to the stack and reset NumToStore variables. */
                                             if (isWithinStackRange(true, false)) {
+                                                if (twoMinusInARow) {
+                                                    if (minusReceivedAfterOtherOperator) {
+                                                        if (debugMode) {
+                                                            System.out.printf("Last char/s in commandBlock made a number but was twoMinusInARow && minusReceivedAfterOtherOperator- adding %f to stack\n", currentNumToStore);
+                                                        }
+                                                        rp_NumberStack.push(currentNumToStore);
+                                                    }
+                                                    else {
+                                                        if (debugMode) {
+                                                            System.out.printf("Last char/s in commandBlock made a number and was twoMinusInARow but not minusReceivedAfterOtherOperator - adding %f to stack\n", currentNumToStore * -1);
+                                                        }
+                                                        rp_NumberStack.push(currentNumToStore * -1);
+                                                        if (debugMode) {
+                                                            System.out.println("popping the last minus from the stack as it was a negative number sign");
+                                                        }
+                                                        inlineExecutionStack.pop();
+                                                    }
+                                                }
+                                                else {
+                                                    if (debugMode) {
+                                                        System.out.printf("Last char/s in commandBlock made a number and was not twoMinusInARow - adding %f to stack\n", currentNumToStore);
+                                                    }
+                                                    rp_NumberStack.push(currentNumToStore);
+
+                                                }
+                                                /*
                                                 if (debugMode) {
                                                     System.out.printf("For loop received operator but previous char/s made a number - adding %f to stack\n"
                                                             , currentNumToStore * (minusReceivedAfterOtherOperator ? -1 : 1));
@@ -215,6 +241,7 @@ public class SRPN {
                                                 // Push number to stack with correct polarity.
                                                 rp_NumberStack.push(currentNumToStore
                                                         * (minusReceivedAfterOtherOperator ? -1 : 1));
+*/
                                             }
                                             else {
                                                 if (debugMode) {
