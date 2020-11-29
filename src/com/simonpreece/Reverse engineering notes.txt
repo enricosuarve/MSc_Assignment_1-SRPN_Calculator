@@ -1,0 +1,359 @@
+ /*
+ * #######NOTES#######
+ * Test 1
+ * Probably need:
+ * global variable for 'running total' and each time an operator is received store the result of the calculation in there
+ * Global variable for current value
+ * Need a function or method that takes 3 values (first can be current running total) with the third being an operator and saves the result in 'running total'
+ * = needs to return the current running total
+ * Example only seems to work with integers
+ * entering 2 numbers but with no operator then and = results in just the second number so not as simple as pure running total - need a rotating 2 digits
+ * <p>
+ * <p>
+ * <p>
+ * check to see if passed a number - if so put the current 2nd number into 1st number and then the number passed into 2nd
+ * check if passed an operator - if so perform calculation on 1st & 2nd using the operator and pass result to 2nd number
+ * check if passed = and if so return second number
+ * <p>
+ * error thrown by original if it gets an unknown operator (e.g. 'g')is 'Unrecognised operator or operand "g".''
+ * when first opening the Program the prompt is "You can now start interacting with the SRPN calculator"
+ * all passes 12/11 14:20gmt
+ * <p>
+ * <p>
+ * Test 2
+ * fails as the original code only allowed for two variables firstNum and secondNum - think I need to implement a stack
+ * source for stacks: https://www.geeksforgeeks.org/stack-data-structure-introduction-program/
+ * try using an array - firstNum = upperbound element secondNum = ubound-1
+ * will either need to track position as I collapse the stack or rely on refactoring to reduce size (and therefore length) as I collapse it
+ * research into dynamic arrays: https://examples.javacodegeeks.com/dynamic-array-java-example/
+ * stack in the original appears to be 23 elements max so maybe just go for pointers as will be easier (and more efficient) than resizing - also will match the original more closely
+ * Michael has just said "replicate this functionality please" so that makes life easier
+ * original throws error "Stack overflow." when trying to put an entry beyond this on the stack and "Stack underflow." when trying to perform operations without enough entries (2) on the stack
+ * Playing around with the original equals always seems to output the point in the stack so emulate this
+ * implemented stack - numbering is a bit pants though so possibly reconfigure so not as many minuses or create other named variables for positions?
+ * 'd' appears to just display the stack (which is something I was already doing for troubleshooting!)-easy win :)
+ * <p>
+ * realised that the original version checks for operator validity *Before* checking underflow - need to rearrange code to match
+ */
+
+/*
+20201113 - rearranged code to allow the same order of checks - result is a switch statement with a lot of repeats (may ned to look for ways to clean up)
+just realised that if '=' is entered in SRPN original with nothing in the stack "Stack empty." is displayed - need to replicate.
+if "d" is entered in SRPN original with an empty stack -2147483648 is displayed
+"#" in SRPN original seems to turn on and off commenting - anything entered between 2 x # symbols is ignored
+"^" in SRPN original is 'to the power of'
+if entering a string in SRPN original that includes an unrecognised character (i.e. "2*2l4") the "l" in this case seems to be substituted by the original operator "*" and the output to the stack is 2 then 8 INVESTIGATE MORE
+*/
+/*
+20201116
+use a long int to do bigger numbers then convert to max/min if goes over/under before passing back to a regular int?  Maybe just work in long ints throughout?
+ */
+/*
+20201118
+single line calculations are done 'full polish' i.e. 2+2*3=8, brackets are not recognised; again there is a stack (GET STACK SIZE)
+if you divide by zero you get a handled error "Divide by 0." - added check to performCalculation
+realised that the check in isWithinStack will return false if the stack is full even if it is a calculation being performed - added logic to allow this
+*/
+/*
+plan to do the inline calculations
+inline calculations can be EITHER RPN or normal PN so need to decide based on inputs
+check if received an integer
+    if not check if single char (perform normal RPN command)
+        if >1 char go into inline calculation
+        go left to right and add operands to a new stack - also add Operators?  check how these are stored
+NEED TO FIGURE OUT LOGIC - I.E. IS 10 10 + 5 going to place 10 then 15 on the main stack or 20 then 5
+    10 10 + 5 : adds 20, 5 to the stack
+    10 10 + 5 + 5 : adds 25, 5
+    10 10 +5 +5 : adds 10, 20 (ARE SPACES THE RPN/PN DIFFERENTIATOR???)
+The inline calculations are still using the stack when being processed as I can place 1+1+(n) 23 times at the start, but if I place content on the normal stack, the amount I can add to an inline calculation without getting an overflow error drops by the same amount
+operators only do not flood the stack (I can place 20 x 1's on the stack and multiple operators in an inline statement - i.e. - + * / +' and these execute and reduce the stack as expected.
+filling the stack with 1's and executing '- 2+2' does what you would expect to the stack (reduces it by 1 and puts 4 at the end but also produces a stack overflow error)
+rpn and pn can be combined '2 2 + 2+2 + 3*9 -'2 = -19
+using the space as a differentiator:
+    '1 2 3 +5*3' = 1, 2, 18 on stack (space before + means add on the following to the previous (PN)
+    '1 2 3+ 5*3' = 1, 5, 15 on stack (space after + means add on previous and treat next as a single number (RPN)
+    '1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1+2+3+4+5+6' (commas = newline) returns:
+        Stack overflow.
+        Stack overflow.
+        Stack overflow.
+        d
+        1
+        ~~~~~~
+        ....etc
+        ~~~~~~
+        6
+        7
+        23
+
+        this looks like the 1, 2, 3 numbers have been stored for execution, but after the stack limit was reached the subsequent numbers have been lost, HOWEVER the operators have been kept and executed as if reverse polish
+            1+2+3 = 6, +0 = 6, +9 = 15, +8 = 23...
+        separate stack for operators?
+
+    '1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1+2+3+ 5' (commas = newline) returns:
+        1
+        ~~~~~~
+        ....etc
+        ~~~~~~
+        8
+        9
+        6
+        5
+    if all numbers were being added to the stack prior to calculation 5 would have overflowed but instead is added to the stack as normal - think the calculator is adding to the stack until PN/RPN flip occurs; executing what it has and then executing the rest of the string
+
+    '1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1-2*3 5+ 6+' (commas = newline) returns:
+        1
+        ~~~~~~
+        ....etc
+        ~~~~~~
+        9
+        0
+        6 (-5 + 5 +6)
+
+    '1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1-2*3+ 5+ 6+' (commas = newline) returns:
+        1
+        ~~~~~~
+        ....etc
+        ~~~~~~
+        9
+        6 (-5 + 5 +6) - same as above except the first -5 has been added to the last zero via RPN
+
+    Determining inline operator stack size:
+    '1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3'
+    ---------------------- 3+3+3  (22 minuses)
+    d
+    12
+    9
+    '1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3'
+    ---------------------- 1+2+3+4+5+6+7+8+9+0+1+2+3+4+5+6+7+8+9+0 1+2+3+4+5+6+7+8+9+0+1+2+3+4+5+6+7+8
+    d
+    12
+    90
+    81
+    there does not appear to be an upper limit on the size of the operator stack as long as there is 'space to move' in the number stack
+
+    '10 10 15+ 2*3 10 2*3 10+'
+        d
+        10
+        25
+        6
+        10
+        16
+
+    '+10 1020'
+        Stack underflow.
+        d
+        10
+        1020
+    '+10 1020'
+        d
+        10
+        1030
+        1020
+
+    ‘10+2d5*3’
+        12
+    ‘10+2=5*3’
+        2
+    ‘d’
+        12
+        15
+        10
+        17
+
+
+    Pow() executes before Modulus:
+    4%1^2
+        =
+        0
+
+    Modulus executes before division:
+    3%4/2
+        =
+        1
+    4/4%2
+        Divide by 0.
+
+    simply entering '-34' creates a new stack entry '-34'
+    entering '+34' adds 34 to the last entry
+    /(num) divides the last stack entry
+    *(num) multiplies the last stack entry
+    ^(num) raises the last stack entry to the power of num
+    % (num) performs modulus on the last stack entry
+    --(num) first performs a RP minus calculation on the last two stack items and then minus -20 from this (EXCEPTION TO DO LATER)
+
+
+    DO OTHER FORMS OF WHITESPACE COUNT AS A SPACE I.E.TAB?????????????????????????????????????????? TO CHECK!!!!!!!!!!!!!!!!!!!!!!!!
+
+check if received an integer
+    if not check if single char (perform normal RPN command)
+        if >1 char go into inline calculation as multi line command
+        make note of current array position, inline start position = current array position
+        Save current position in inline string currentinlinecommandstart
+        Move left to right per character
+            PNMode = on
+            If char == ‘=’
+                execute ‘=’ as normal
+                Execute compiled command
+            If char == ‘d’
+                Execute compiled command
+                execute ‘=’ as normal
+            If char == ‘r’
+                Place r value into last position
+                Dump entire compiled command up to now
+                If command is 1+2+3r keep the one and dump the rest so store
+                1, r_value
+            if char = {^%/*+-}
+                place operator into compiledcommand array
+
+            If char = number add to temp integer (temp int * 10 + number)
+                    Loop the above until not an integer
+                When char not an integer save temp integer to current array position
+                If character is a space execute compiled command (need to compile a command)
+
+ExecuteCompiledCommand:
+    Set OperatorSequenceNumber value to 0
+    Loop back through string starting at point of last command start currentinlinecommandstart
+    BODMAS:
+    B:
+        No Brackets as not recognised - ignore
+    O:
+        Go through left to right for Pow()
+        For each operator add one to OperatorSequenceNumber
+            If operator = ^
+                perform operator action on stack[OperatorSequenceNumber] and stack[OperatorSequenceNumber +1]
+                Place result in stack[OperatorSequenceNumber]
+                Remove stack[OperatorSequenceNumber+1]
+                OperatorSequenceNumber--
+            Else
+                        Do nothing
+        Loop
+
+        then:
+
+        Go through left to right for Modulus
+        For each operator add one to OperatorSequenceNumber
+            If operator = %
+                perform operator action on stack[OperatorSequenceNumber] and stack[OperatorSequenceNumber +1]
+                Place result in stack[OperatorSequenceNumber]
+                Remove stack[OperatorSequenceNumber+1]
+                OperatorSequenceNumber--
+            Else
+                        Do nothing
+        Loop
+
+    D:
+        Go through left to right for Division
+        For each operator add one to OperatorSequenceNumber
+            If operator = /
+                perform operator action on stack[OperatorSequenceNumber] and stack[OperatorSequenceNumber +1]
+                Place result in stack[OperatorSequenceNumber]
+                Remove stack[OperatorSequenceNumber+1]
+                OperatorSequenceNumber--
+            Else
+                        Do nothing
+        Loop
+    M:
+        Go through left to right for Multiplication
+        For each operator add one to OperatorSequenceNumber
+            If operator = *
+                perform operator action on stack[OperatorSequenceNumber] and stack[OperatorSequenceNumber +1]
+                Place result in stack[OperatorSequenceNumber]
+                Remove stack[OperatorSequenceNumber+1]
+                OperatorSequenceNumber--
+            Else
+                        Do nothing
+        Loop
+    AS:
+        Set OperatorSequenceNumber value to 0
+        Go through left to right for addition and subtraction
+        For each operator add one to OperatorSequenceNumber
+            If operator = + or -
+            perform operator action on stack[OperatorSequenceNumber] and stack[OperatorSequenceNumber +1]
+            Place result in stack[OperatorSequenceNumber]
+            Remove stack[OperatorSequenceNumber+1]
+        Loop
+
+    go left to right and add operands to a new stack - also add Operators?  check how these are stored
+
+
+CHECK CAN DEAL WITH LEADING AND TRAILING SPACES - ALSO SPACES SEEM TO HAVE SOMETHING TO DO WITH RPN VS PN DECISION - DOES TRIMMING TOO EARLY IMPACT THIS?
+when doing inline PN calculations need to go left to right with multiplication and divide , reduce the stack then perform the addition and subtractions left to right
+use the Stack() class for a stack instead of array to simplify popping etc
+Following calculation gives an odd result - check it out
+    1
+    2
+    3
+    /
+    -
+    = 0 (should be 1 if all integer rounding)
+
+    checked and NUMBERS ON THE STACK ARE BEING STORED AS REAL NUMBERS BUT THEN DISPLAYED AS INTEGERS; FURTHER CALCULATIONS REVEAL THEM TO HAVE DECIMAL VALUES:
+        5           10
+        2           6
+        / (2)       / (=1)
+        2           2
+        *           *
+        = 5         = 3
+    Need to work out precision somehow - TO DO!!!!
+
+
+
+also following throws an actual error in original - cool so does mine :)
+    1
+    0
+    %
+
+name snp39-srpn,zip check name from recording 19th NOv DEADLINE 2nd december
+
+ 202011121 - spent the last few days working out the logic for in inline calculations - nearly there (see above) but clear that a proper stack will help with this as need to be able to pop and push easily to do the inline logic I have planned.
+ starting to convert existing array stack into a Stack()
+
+also taking the time to change logic to storing on the stack as a double
+
+
+201121 2122 - starting to get the inline calculation working but the reverse polish at start does not work as it is operating on the last two number in the array rather than from the starting position of the inline numbers - alter the standard calculation to accept an array index to begin at
+
+use a scanner to get the 'words' in an inline statement rather than the current setup
+
+201122 added the ability to perform calculations to anypoint in the stack to performRP_Calculation - poss need to rewrite isWithinStack also
+
+if first char is an operand - store in string
+check if next char is an operand - perform first and loop^
+    (next char is a number)
+    add to stack
+        is next char a higher order operand?
+        no - perform function so far
+        yes add operand to execution string
+
+201122 2124 - implemented above - can do most of the basic calculations. Need to add '=' ,'d', '#', clean up dead code (remove the ability to execute in the middle of the stack as not required) and merge the original processcommand with the inlinecommand reader as they are the same thing)
+
+201123 0920 - added '=' but still executing too late (i think)
+    Original tool:
+    33^3^3^=
+        3
+        Stack underflow.
+
+    my tool:
+    33^3^3^=
+        2147483647
+        Stack underflow.
+
+201124 1601
+got all 4 tests passing last night, however I still do not pass some of the tests I 'created' while taking notes as three is more going on - spending some time to get these right
+
+201124 2207
+all main tests passing along with most of my own - need to work on negative numbers and --5 calculations; also nee to figure out how = works in an inline calc as seems to mess up execution in the original which will be hard to mimic!
+
+201124 2123
+all main tests pass and negative numbers now work but too well! (not duplicated the 'error') - see P6 of my notes for further tests to try to pass then that's it (hopefully)
+
+
+Other things discovered:
+    #this is a comment# - will not work (needs to be a space on BOTH sides of the #)
+
+
+10, 5, --20 = 25; minus numbers are not checked for if they are the last number in a block (if they occur in the middle they are checked for
+
+
+
+*/
