@@ -115,6 +115,8 @@ public class SRPN {
         boolean lastCharWasOperator;
         boolean minusReceivedAfterOtherOperator;
         boolean isFirstChar = true; // End of commandBlock execution is skipped if first commandBlock is just an operator.
+        boolean lastCharWasMinus = false;
+        boolean twoMinusInARow = false;
         if (s.length() > 0) { // Ignore empty lines as nothing to do.
             do {
                 currentTopOfStack = rp_NumberStack.size() - 1;
@@ -188,7 +190,7 @@ public class SRPN {
                                     lastCharWasOperator = false;
                                 } catch (Exception ee) { // The character received is not a number.
                                     if (debugMode) {
-                                        System.out.printf("char '%c' is NOT a number\n", currentChar);
+                                        //System.out.printf("char '%c' is NOT a number\n", currentChar);
                                     }
 
                                     /* Check if currentChar has a BODMAS priority and is therefore a valid operator
@@ -210,7 +212,7 @@ public class SRPN {
                                                                 add it to the stack and reset NumToStore variables. */
                                             if (isWithinStackRange(true, false)) {
                                                 if (debugMode) {
-                                                    System.out.printf("previous char/s made a number - adding %f to stack\n"
+                                                    System.out.printf("For loop received operator but previous char/s made a number - adding %f to stack\n"
                                                             , currentNumToStore * (minusReceivedAfterOtherOperator ? -1 : 1));
                                                 }
                                                 // Push number to stack with correct polarity.
@@ -233,6 +235,10 @@ public class SRPN {
                                             }
                                             /* The original 'loses' the number at this point if it can't save it, so leave
                                                                                     following outside the check. */
+                                            if (debugMode) {
+                                                System.out.println("number placed in stack setting twoMinusInARow = false");
+                                            }
+                                            twoMinusInARow = false;
                                             currentNumToStore = 0;
                                             isNumToStore = false;
                                         }// - End of NumStore
@@ -243,12 +249,21 @@ public class SRPN {
                                              execute inlineExecutionStack
                                               original seems to convert the current char to a plus at this point*/
                                                 //   currentChar = '+'; // poss so this at some point???+
+                                                if (debugMode) {
+                                                    System.out.println("minusreceivedafterotheropchek Operator other than '-' received setting twoMinusInARow = true");
+                                                }
 
+                                                twoMinusInARow = true;
                                                 executeInlineExecutionStack(true, false);
                                             }
                                             else { /* the previous minus
                                             did not turn out to be a number sign - check if the stack should have been
                                             executed and do so (compare BODMAS of previous two chars). */
+                                                if (debugMode) {
+                                                    System.out.println("minusreceivedafterotheropchek Operator other than '-' received setting twoMinusInARow = false");
+                                                }
+                                                twoMinusInARow = false;
+
                                                 if (debugMode) {
                                                     System.out.println("Previous character was a minus but following was not a" +
                                                             " number - checking if should have executed stack");
@@ -274,15 +289,23 @@ public class SRPN {
                                                     }
                                                 }
                                             }
-                                        }
+                                        }// - end of minusReceivedAfterOtherOperator check
 
                                         if (lastCharWasOperator && currentChar == '-') { /* If a Minus is received after
                                             another operator it could be a negative number sign, do nothing for now
                                             but note that the condition has happened. */
                                             if (debugMode) {
-                                                System.out.println("setting minusReceivedAfterOtherOperator = true;");
+                                                System.out.println("lastCharWasOperator && currentChar == '-'; setting minusReceivedAfterOtherOperator = true;");
                                             }
                                             minusReceivedAfterOtherOperator = true;
+                                            if (debugMode) {
+                                                System.out.println("lastCharWasOperator && currentChar == '-'; setting twoMinusInARow = true");
+                                            }
+                                            twoMinusInARow = true;
+                                        }
+                                        if (lastCharWasMinus && currentChar == '-') {
+                                            if (debugMode){System.out.println("lastCharWasMinus && currentChar == '-'; setting twoMinusInARow = true");}
+                                            twoMinusInARow = true;
                                         }
 
                                         if (currentChar == 'd') {
@@ -371,18 +394,31 @@ public class SRPN {
                     if (isNumToStore) {
                         if (isWithinStackRange(true, false)) {
                             if (debugMode) {
-                                System.out.printf("previous char/s made a number - adding %f to stack\n", currentNumToStore * (minusReceivedAfterOtherOperator ? -1 : 1));
+                                System.out.printf("Last char/s in commandBlock  made a number - adding %f to stack\n", currentNumToStore * (minusReceivedAfterOtherOperator ? -1 : 1));
                             }
                             /* The original SRPN has a 'feature' whereby it does not appear to check number polarity at the end of
                                 a commandBlock (e.g. 5, 10, --50*/
-                            rp_NumberStack.push(currentNumToStore * (minusReceivedAfterOtherOperator ? -1 : 1));
+                            if (!twoMinusInARow) {
+                                if (debugMode) {
+                                    System.out.printf("Last char/s in commandBlock made a number and not twoMinusInARow - adding %f to stack\n", currentNumToStore * (minusReceivedAfterOtherOperator ? -1 : 1));
+                                }
+                                rp_NumberStack.push(currentNumToStore * (minusReceivedAfterOtherOperator ? -1 : 1));
+                            }
+                            else {
+                                if (debugMode) {
+                                    System.out.printf("Last char/s in commandBlock made a number but was twoMinusInARow - adding %f to stack\n", currentNumToStore );
+                                }
+                                rp_NumberStack.push(currentNumToStore);
+                            }
+
+
                         }
                         else {
                             if (debugMode) {
                                 System.out.printf("failed to add %f to stack\n", currentNumToStore);
                             }
                         }
-                        if (minusReceivedAfterOtherOperator) {
+                        if (minusReceivedAfterOtherOperator && !twoMinusInARow) {
                             inlineExecutionStack.pop(); //get rid of the minus from the top of the stack as it was a number sign not an operator
                         }
                         currentNumToStore = 0;
@@ -407,6 +443,7 @@ public class SRPN {
                 System.out.printf("Finished executing inlineExecutionStack : inlineExecutionStack.size() = %d\n", inlineExecutionStack.size());
             }
         }
+
     }
 
 
