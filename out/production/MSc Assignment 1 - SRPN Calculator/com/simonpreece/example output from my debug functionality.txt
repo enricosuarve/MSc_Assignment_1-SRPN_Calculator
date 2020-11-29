@@ -1,0 +1,75 @@
+
+
+You can now start interacting with the SRPN calculator
+20
+b
+Finished the 'end of a commandBlock' execution
+While loop finished - inlineExecutionStack.size() = 0
+Finished executing inlineExecutionStack : inlineExecutionStack.size() = 0
+5--8*/25
+processing commandBlock '5--8*/25'
+command block '5--8*/25' contained a non integer - processing
+'5--8*/25' did not match '#' inCommentMode = false
+checking char '5'
+char '5' is a number
+checking char '-'
+Character is a valid operator
+Last char/s in commandBlock made a number and was not twoMinusInARow - adding 5.000000 to stack
+number placed in stack setting twoMinusInARow = false
+checked lastCharWasMinus && currentChar =='-' setting twoMinusInARow = false
+Either the previous operator ' ' was a lower priority (0)than '-'(1), this is an invalid char or = or this is this is the only one in the stack
+adding operator '-' to command stack
+set lastCharWasMinus = true
+checking char '-'
+Character is a valid operator
+checked lastCharWasMinus && currentChar =='-' setting twoMinusInARow = true
+Either the previous operator '-' was a lower priority (1)than '-'(1), this is an invalid char or = or this is this is the only one in the stack
+adding operator '-' to command stack
+set lastCharWasMinus = true
+checking char '8'
+char '8' is a number
+checking char '*'
+Character is a valid operator
+Last char/s in commandBlock made a number and was twoMinusInARow but not minusReceivedAfterOtherOperator - adding -8.000000 to stack
+popping the last minus from the stack as it was a negative number sign
+number placed in stack setting twoMinusInARow = false
+checked lastCharWasMinus && currentChar =='-' setting twoMinusInARow = false
+Either the previous operator '-' was a lower priority (1)than '*'(4), this is an invalid char or = or this is this is the only one in the stack
+adding operator '*' to command stack
+set lastCharWasMinus = false
+checking char '/'
+Character is a valid operator
+checked lastCharWasMinus && currentChar =='-' setting twoMinusInARow = false
+Either the previous operator '*' was a lower priority (4)than '/'(5), this is an invalid char or = or this is this is the only one in the stack
+adding operator '/' to command stack
+set lastCharWasMinus = false
+checking char '2'
+char '2' is a number
+checking char '5'
+char '5' is a number
+got to the end of a commandBlock - executing
+Last char/s in commandBlock  made a number - adding 25.000000 to stack
+Last char/s in commandBlock made a number and was not twoMinusInARow - adding 25.000000 to stack
+Executing command '/'
+Executing command '*'
+Executing command '-'
+Finished the 'end of a commandBlock' execution
+While loop finished - inlineExecutionStack.size() = 0
+Finished executing inlineExecutionStack : inlineExecutionStack.size() = 0
+d
+processing commandBlock 'd'
+command block 'd' contained a non integer - processing
+'d' did not match '#' inCommentMode = false
+checking char 'd'
+Character is a valid operator
+checked lastCharWasMinus && currentChar =='-' setting twoMinusInARow = false
+'d' RECEIVED = DISPLAYING
+21
+Either the previous operator ' ' was a lower priority (0)than 'd'(12), this is an invalid char or = or this is this is the only one in the stack
+adding operator 'd' to command stack
+set lastCharWasMinus = false
+got to the end of a commandBlock - executing
+Executing command 'd'
+Finished the 'end of a commandBlock' execution
+While loop finished - inlineExecutionStack.size() = 0
+Finished executing inlineExecutionStack : inlineExecutionStack.size() = 0
