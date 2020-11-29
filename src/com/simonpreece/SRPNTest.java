@@ -566,6 +566,7 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+
     @Test
     public void extraTestEqualsMessesUpCalculation2() {
         srpn.processCommand("10*2=5+3");
@@ -592,6 +593,15 @@ public class SRPNTest {
     }
 
     @Test
+    public void extraTestSimpleNegativeNumberAddition() {
+        srpn.processCommand("5+-1");
+        srpn.processCommand("d");
+        String[] strArrayExpected = {"4"};
+        List<String> listExpected = Arrays.asList(strArrayExpected);
+        assertEquals(listExpected, getAllPrintedLinesAndRefresh());
+    }
+
+    @Test
     public void extraTestMinusNegative20GivesWrongOutput() {
         srpn.processCommand("10");
         srpn.processCommand("5");
@@ -601,6 +611,7 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+
     @Test
     public void extraTestMinusInMultipleOperationsDOESWork() {
         srpn.processCommand("5--2");
@@ -609,6 +620,7 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+
     @Test
     public void extraTestPlusDoubleMinusAtEndOfCalc() {
         srpn.processCommand("33");
@@ -620,6 +632,7 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+
     @Test
     public void extraTestDoubleMinusPlusAtEndOfCalc() {
         srpn.processCommand("33");
@@ -631,6 +644,7 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+
     @Test
     public void extraTestMultiplyDoubleMinusAtEndOfCalc() {
         srpn.processCommand("2");
@@ -642,6 +656,7 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+
     @Test
     public void extraTestMultiplyDoubleMinusMiddleOfCalc() {
         srpn.processCommand("10");
@@ -652,6 +667,7 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+
     @Test
     public void extraTestDivideDoubleMinusAtEndOfCalc() {
         srpn.processCommand("10");
@@ -663,6 +679,7 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+
     @Test
     public void extraTestCaratDoubleMinusAtEndOfCalc() {
         srpn.processCommand("22");
@@ -674,6 +691,7 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+
     @Test
     public void extraTestModulusDoubleMinusAtEndOfCalc() {
         srpn.processCommand("56");
@@ -685,6 +703,7 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+
     @Test
     public void extraTestDoubleMinusOnSeparateLineWithSingleNumInStackUnderflows() {
         srpn.processCommand("5");
@@ -695,6 +714,7 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+
     @Test
     public void extraTestDoubleMinusOnSingleLine() {
         srpn.processCommand("5--2");
@@ -703,6 +723,7 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+
     @Test
     public void extraOperatorsReceivedConsecutivelyMultipleDivide() {
         srpn.processCommand("20");
@@ -712,6 +733,7 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+
     @Test
     public void extraOperatorsReceivedConsecutivelyDivideMultiple() {
         srpn.processCommand("20");
