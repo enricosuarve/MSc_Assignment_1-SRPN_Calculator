@@ -643,6 +643,16 @@ public class SRPNTest {
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
     @Test
+    public void extraTestMultiplyDoubleMinusMiddleOfCalc() {
+        srpn.processCommand("10");
+        srpn.processCommand("5");
+        srpn.processCommand("2*--6+5");
+        srpn.processCommand("d");
+        String[] strArrayExpected = {"11"};
+        List<String> listExpected = Arrays.asList(strArrayExpected);
+        assertEquals(listExpected, getAllPrintedLinesAndRefresh());
+    }
+    @Test
     public void extraTestDivideDoubleMinusAtEndOfCalc() {
         srpn.processCommand("10");
         srpn.processCommand("2");

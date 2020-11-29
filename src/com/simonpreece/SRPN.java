@@ -174,9 +174,7 @@ public class SRPN {
                                             if (isWithinStackRange(true, false)) {
                                                 writeNumberToStack(currentNumToStore, twoMinusInARow, minusReceivedAfterOtherOperator);
                                             }
-                                            else {
-                                            }
-                                            if (minusReceivedAfterOtherOperator) {
+                                            if (minusReceivedAfterOtherOperator && !twoMinusInARow) {
                                                 inlineExecutionStack.pop(); /* Get rid of the minus from the top of the stack
                                                                             as it was a number sign not an operator. */
                                                 minusReceivedAfterOtherOperator = false;
@@ -197,16 +195,16 @@ public class SRPN {
                                                 //   currentChar = '+'; // poss so this at some point???+
                                                 executeInlineExecutionStack(true);
                                             }
-                                            else { /* the previous minus
-                                            did not turn out to be a number sign - check if the stack should have been
-                                            executed and do so (compare BODMAS of previous two chars). */
-                                                if (inlineExecutionStack.size() > 1 && bodmasPriority(inlineExecutionStack.get(inlineExecutionStack.size() - 2)) >
-                                                        bodmasPriority(inlineExecutionStack.peek())) {
+                                            else { /* the previous minus did not turn out to be a number sign - check if
+                                             the stack should have been executed (compare BODMAS of previous two chars). */
+                                                if (inlineExecutionStack.size() > 1 &&
+                                                        bodmasPriority(inlineExecutionStack.get(inlineExecutionStack.size() - 2)) >
+                                                                bodmasPriority(inlineExecutionStack.peek())) {
                                                     executeInlineExecutionStack(true);
                                                 }
                                                 minusReceivedAfterOtherOperator = false;
                                             }
-                                        }// - end of minusReceivedAfterOtherOperator check
+                                        }
 
                                         if (lastCharWasOperator && !lastCharWasMinus && currentChar == '-') { /* If a Minus is received after
                                             another operator it could be a negative number sign, do nothing for now
@@ -286,10 +284,10 @@ public class SRPN {
     /**
      * Write number to stack
      *
-     * @param currentNumToStore Number to add
-     * @param twoMinusInARow Directly preceeding the number, were there two minuses in a row?
-     * @param minusReceivedAfterOtherOperator Directly preceeding the two minuses was there another operator
-     *                                          or was it the start of CommandBlock?
+     * @param currentNumToStore               Number to add
+     * @param twoMinusInARow                  Directly preceding the number, were there two minuses in a row?
+     * @param minusReceivedAfterOtherOperator Directly preceding the two minuses was there another operator
+     *                                        or was it the start of CommandBlock?
      */
     private void writeNumberToStack(double currentNumToStore, boolean twoMinusInARow, boolean minusReceivedAfterOtherOperator) {
         if (twoMinusInARow) {
@@ -325,6 +323,7 @@ public class SRPN {
             inlineExecutionStack.push(TopInstruction); //put the instruction skipped back on the top of the stack.
         }
     }
+
 
     /**
      * Function to give a numerical priority for a given operator to calculate BODMAS order of execution, also used to
@@ -470,6 +469,7 @@ public class SRPN {
         }
     }
 
+
     /**
      * Function to limit output of a number to within the range set in the class variables output_MIN and output_MAX
      *
@@ -486,52 +486,6 @@ public class SRPN {
             input = Double.valueOf(Integer.MAX_VALUE);
         }
         return input;
-    }
-
-    /**
-     * Function Prints the entire stack
-     * Deliberately prints the actual double rather than integer value '=' and 'd' use so can see what is going on
-     * !!!! Used for troubleshooting during design !!REMOVE ALL REFERENCES PRIOR TO PROD!!
-     */
-    private void DEBUG_printCalcStack() {
-        System.out.println("\n\nStack contents:");
-        for (int i = 0; i < rp_NumberStack.size(); i++) {
-            System.out.println("rp_NumberStack [" + i + "] = " + rp_NumberStack.get(i));
-        }
-        System.out.println();
-        System.out.println("\nInline Operator Stack contents:");
-        for (int i = 0; i < inlineExecutionStack.size(); i++) {
-            System.out.println("inlineOperatorStack [" + i + "] = " + inlineExecutionStack.get(i));
-        }
-        System.out.println();
-    }
-
-    /**
-     * Function Prints the entire InlineExecutionStack
-     * !!!! Used for troubleshooting during design !!REMOVE ALL REFERENCES PRIOR TO PROD!!
-     */
-    @SuppressWarnings("unused")
-    private void DEBUG_printInlineExecutionStack() {
-        System.out.println("\nInline Operator Stack contents:");
-        for (int i = 0; i < inlineExecutionStack.size(); i++) {
-            System.out.println("inlineOperatorStack [" + i + "] = " + inlineExecutionStack.get(i));
-        }
-        System.out.println();
-    }
-
-    /**
-     * Function resets the stack by and all values to their starting positions
-     * !!! for troubleshooting during design & testing !!REMOVE ALL REFERENCES PRIOR TO PROD!!
-     */
-    private void DEBUG_Reset_ALL() {
-        System.out.println("\n\nClearing stack:");
-        rp_NumberStack.removeAllElements();
-        System.out.println("Resetting random array pointer to zero:");
-        rArray_position = 0;
-        System.out.println("Clearing inline operator stack:");
-        inlineExecutionStack.removeAllElements();
-        System.out.println("Reset finished");
-        System.out.println();
     }
 
 
@@ -584,4 +538,54 @@ public class SRPN {
         firstNum = rp_NumberStack.get(topStackIndex - 1);
         secondNum = rp_NumberStack.get(topStackIndex);
     }
+
+    /**
+     * Function Prints the entire stack
+     * Deliberately prints the actual double rather than integer value '=' and 'd' use so can see what is going on
+     * !!!! Used for troubleshooting during design !!REMOVE ALL REFERENCES PRIOR TO PROD!!
+     */
+    @SuppressWarnings("unused")
+    private void DEBUG_printCalcStack() {
+        System.out.println("\n\nStack contents:");
+        for (int i = 0; i < rp_NumberStack.size(); i++) {
+            System.out.println("rp_NumberStack [" + i + "] = " + rp_NumberStack.get(i));
+        }
+        System.out.println();
+        System.out.println("\nInline Operator Stack contents:");
+        for (int i = 0; i < inlineExecutionStack.size(); i++) {
+            System.out.println("inlineOperatorStack [" + i + "] = " + inlineExecutionStack.get(i));
+        }
+        System.out.println();
+    }
+
+    /**
+     * Function resets the stack by and all values to their starting positions
+     * !!! for troubleshooting during design & testing !!REMOVE ALL REFERENCES PRIOR TO PROD!!
+     */
+    @SuppressWarnings("unused")
+    private void DEBUG_Reset_ALL() {
+        System.out.println("\n\nClearing stack:");
+        rp_NumberStack.removeAllElements();
+        System.out.println("Resetting random array pointer to zero:");
+        rArray_position = 0;
+        System.out.println("Clearing inline operator stack:");
+        inlineExecutionStack.removeAllElements();
+        System.out.println("Reset finished");
+        System.out.println();
+    }
+
+
+    /**
+     * Function Prints the entire InlineExecutionStack
+     * !!!! Used for troubleshooting during design !!REMOVE ALL REFERENCES PRIOR TO PROD!!
+     */
+    @SuppressWarnings("unused")
+    private void DEBUG_printInlineExecutionStack() {
+        System.out.println("\nInline Operator Stack contents:");
+        for (int i = 0; i < inlineExecutionStack.size(); i++) {
+            System.out.println("inlineOperatorStack [" + i + "] = " + inlineExecutionStack.get(i));
+        }
+        System.out.println();
+    }
+
 }
