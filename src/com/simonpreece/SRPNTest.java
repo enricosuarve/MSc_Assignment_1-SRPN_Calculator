@@ -636,7 +636,7 @@ public class SRPNTest {
         srpn.processCommand("10");
         srpn.processCommand("2");
         srpn.processCommand("6");
-        srpn.processCommand("/--6");
+        srpn.processCommand("/--3");
         srpn.processCommand("d");
         String[] strArrayExpected = {"12"};
         List<String> listExpected = Arrays.asList(strArrayExpected);
@@ -660,7 +660,7 @@ public class SRPNTest {
         srpn.processCommand("67");
         srpn.processCommand("%--5");
         srpn.processCommand("d");
-        String[] strArrayExpected = {"70"};
+        String[] strArrayExpected = {"58"};
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }

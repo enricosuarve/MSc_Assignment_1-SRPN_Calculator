@@ -331,7 +331,7 @@ public class SRPN {
                                         the current character is a valid operator other than 'equals'; check if the stack
                                         should be executed. Stack should be executed if the previous operators 'BODMAS'
                                         order of execution was greater than the current operator (i.e. * > +). */
-                                        if (!minusReceivedAfterOtherOperator &&
+                                        if (!twoMinusInARow &&
                                                 !inlineExecutionStack.isEmpty() &&
                                                 bodmasPriority(currentChar) > 0 &&
                                                 currentChar != '=' &&
@@ -346,9 +346,9 @@ public class SRPN {
                                             if (debugMode) {
                                                 char lastOperatorInStack = (!inlineExecutionStack.isEmpty() ?
                                                         inlineExecutionStack.peek() : ' ');
-                                                System.out.printf("Either the previous operator '%c' was a lower priority " +
-                                                        "than '%c', this is an invalid char or = or this is this is the only" +
-                                                        " one in the stack\n", lastOperatorInStack, currentChar);
+                                                System.out.printf("Either the previous operator '%c' was a lower priority (%d)" +
+                                                        "than '%c'(%d), this is an invalid char or = or this is this is the only" +
+                                                        " one in the stack\n", lastOperatorInStack, bodmasPriority(lastOperatorInStack),currentChar, bodmasPriority(currentChar));
                                             }
                                         }
                                         if (debugMode) {
