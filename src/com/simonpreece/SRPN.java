@@ -200,14 +200,11 @@ public class SRPN {
                                             System.out.printf("currentChar '%c' has no Bodmas so unrecognised at this point - raise warning and do not add to stack\n", currentChar);
                                         }
                                         System.out.println("Unrecognised operator or operand \"" + currentChar + "\".");
-
                                     }
                                     else {
                                         if (debugMode) {
                                             System.out.println("Character is a valid operator");
                                         }
-
-
                                         if (isNumToStore) { /* Check if have already previously been passed a number, if so
                                                                 add it to the stack and reset NumToStore variables. */
                                             if (isWithinStackRange(true, false)) {
@@ -228,6 +225,7 @@ public class SRPN {
                                                 inlineExecutionStack.pop(); /* Get rid of the minus from the top of the stack
                                                                             as it was a number sign not an operator. */
                                                 minusReceivedAfterOtherOperator = false;
+                                                lastCharWasMinus = false;
                                                 if (debugMode) {
                                                     System.out.println("processing the number using the character for-loop block");
                                                 }
@@ -243,19 +241,11 @@ public class SRPN {
                                             isNumToStore = false;
                                         }// - End of NumStore
 
-                                        if (lastCharWasMinus && currentChar == '-') {
-                                            if (debugMode) {
-                                                System.out.println("lastCharWasMinus && currentChar =='-' setting twoMinusInARow = true");
-                                            }
-                                            twoMinusInARow = true;
+                                        twoMinusInARow =  (lastCharWasMinus && currentChar == '-');
+                                        if (debugMode) {
+                                            System.out.printf("checked lastCharWasMinus && currentChar =='-' setting twoMinusInARow = %b\n", twoMinusInARow);
                                         }
-                                        else {
-                                            if (debugMode) {
-                                                System.out.println("setting twoMinusInARow = false");
-                                            }
-                                            twoMinusInARow = false;
 
-                                        }
                                         if (minusReceivedAfterOtherOperator) {
                                             if (currentChar == '-') {/* two minuses in a row after another operator - definitely
                                              execute inlineExecutionStack
@@ -275,7 +265,7 @@ public class SRPN {
                                                     System.out.println("Previous character was a minus but following was not a" +
                                                             " number - checking if should have executed stack");
                                                 }
-                                                if (bodmasPriority(inlineExecutionStack.get(inlineExecutionStack.size() - 2)) >
+                                                if (inlineExecutionStack.size()>1 && bodmasPriority(inlineExecutionStack.get(inlineExecutionStack.size() - 2)) >
                                                         bodmasPriority(inlineExecutionStack.peek())) {
                                                     if (debugMode) {
                                                         System.out.printf("Operator '%c'(%d) > '%c'(%d) - executing stack\n",
@@ -287,14 +277,15 @@ public class SRPN {
                                                     executeInlineExecutionStack(true, false);
                                                 }
                                                 else {
-                                                    if (debugMode) {
+                                                   /* if (debugMode) {
                                                         System.out.printf("Operator '%c'(%d) !> '%c'(%d) - leaving stack in peace\n",
                                                                 inlineExecutionStack.get(inlineExecutionStack.size() - 2),
                                                                 bodmasPriority(inlineExecutionStack.get(inlineExecutionStack.size() - 2)),
                                                                 inlineExecutionStack.peek(),
                                                                 bodmasPriority(inlineExecutionStack.peek()));
-                                                    }
+                                                    }*/
                                                 }
+                                                minusReceivedAfterOtherOperator = false;
                                             }
                                         }// - end of minusReceivedAfterOtherOperator check
 
@@ -305,6 +296,12 @@ public class SRPN {
                                                 System.out.println("lastCharWasOperator && currentChar == '-'; setting minusReceivedAfterOtherOperator = true;");
                                             }
                                             minusReceivedAfterOtherOperator = true;
+                                        }
+                                        if (isFirstChar && currentChar == '-') {
+                                            minusReceivedAfterOtherOperator = true; /* Original treats minuses at the start of a commandBlock as if they were following another operator */
+                                            if (debugMode) {
+                                                System.out.println("isFirstChar && currentChar =='-'; setting minusReceivedAfterOtherOperator = true");
+                                            }
                                         }
 
                                         if (currentChar == 'd') {
@@ -420,7 +417,7 @@ public class SRPN {
                                     inlineExecutionStack.pop();
                                 }
                             }
-                            else{
+                            else {
                                 if (debugMode) {
                                     System.out.printf("Last char/s in commandBlock made a number and was not twoMinusInARow - adding %f to stack\n", currentNumToStore);
                                 }
