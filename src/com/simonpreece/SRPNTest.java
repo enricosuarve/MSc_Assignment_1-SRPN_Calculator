@@ -621,6 +621,17 @@ public class SRPNTest {
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
     @Test
+    public void extraTestDoubleMinusPlusAtEndOfCalc() {
+        srpn.processCommand("33");
+        srpn.processCommand("20");
+        srpn.processCommand("10");
+        srpn.processCommand("--+4");
+        srpn.processCommand("d");
+        String[] strArrayExpected = {"27"};
+        List<String> listExpected = Arrays.asList(strArrayExpected);
+        assertEquals(listExpected, getAllPrintedLinesAndRefresh());
+    }
+    @Test
     public void extraTestMultiplyDoubleMinusAtEndOfCalc() {
         srpn.processCommand("2");
         srpn.processCommand("8");
