@@ -127,6 +127,7 @@ public class SRPN {
                 try {
                     // Check if commandBlock is a valid long and throw an Exception if not.
                     currentNum = Long.parseLong(commandBlock);
+                    //noinspection StatementWithEmptyBody
                     if (!inCommentMode) {
                         /* Add to stack if there is space and the number does NOT start with a '+' (for parseLong this
                             means a number is positive, but not in the original SRPN, where it means 'add results to
@@ -186,7 +187,6 @@ public class SRPN {
                                         if (minusReceivedAfterOtherOperator) {
                                             if (currentChar == '-') {/* two minuses in a row after another operator - definitely
                                              execute inlineExecutionStack */
-
                                                 executeInlineExecutionStack(true);
                                             }
                                             else { /* the previous minus did not turn out to be a number sign - check if
@@ -215,8 +215,9 @@ public class SRPN {
                                             displayStack();
                                         }
                                         if (currentChar == '=') {
-                                        /* command has received an equals - in the original this executes immediately,
-                                            hence checking for it here. */
+                                        /* command has received an equals - in the original this runs immediately,
+                                         displaying the number at the top of the stack prior to any further calculations
+                                         ; hence checking for it here. */
                                             if (rp_NumberStack.size() > 0) {
                                                 System.out.println(rp_NumberStack.peek().intValue());
                                             }
@@ -231,41 +232,39 @@ public class SRPN {
                                         order of execution was greater than the current operator (i.e. * > +). */
                                         if (!minusReceivedAfterOtherOperator &&
                                                 !inlineExecutionStack.isEmpty() &&
-                                                bodmasPriority(currentChar) > 0 &&
                                                 currentChar != '=' &&
                                                 bodmasPriority(inlineExecutionStack.peek()) > bodmasPriority(currentChar)) {
                                             executeInlineExecutionStack(false);
                                         }
 
+                                        lastCharWasOperator = true;
                                         lastCharWasMinus = (currentChar == '-');
                                         inlineExecutionStack.push(currentChar);
-                                        lastCharWasOperator = true;
-
-                                    }//- end of Bodmas Operator Validity Check
-                                }//- end of for loop parseDouble exception
-                            }//- end of Comment mode check
+                                    }//--end of Bodmas Operator Validity Check
+                                }//--end of for loop parseDouble exception
+                            }//--end of Comment mode check
                             isFirstChar = false;
                         }//--end of single character loop.
                     }//--end of check for comment mode.
 
-                    //execute any valid command at the end of a block.
+                    /* Execute any valid command at the end of a block. */
                     if (bodmasPriority(currentChar) > 0 && bodmasPriority(currentChar) <= 6 && !inCommentMode) {
                         performRP_Calculation(inlineExecutionStack.pop());
                     }
-                }// -- End of commandBlock number check exception.
+                }//-- End of commandBlock number check exception.
 
                 /* If the commandBlock contained more than one character process the instructions- execution is skipped
-                                                                            if first commandBlock is just an operator.*/
+                    if first commandBlock is just an operator.*/
                 if (!isFirstChar) {
                     if (isNumToStore) {
                         if (isWithinStackRange(true, false)) {
                             writeNumberToStack(currentNumToStore, twoMinusInARow, minusReceivedAfterOtherOperator);
                         }
                     }
-                    // Execute the entire command block as have reached its end.
+                    /* Execute the entire command block as have reached its end. */
                     executeInlineExecutionStack(false);
                 }
-            } while (CommandScanner.hasNext()); //--if string has another commandBlock, loop back and do again
+            } while (CommandScanner.hasNext()); /* If string has another commandBlock, loop back and do again. */
         }
     }
 
@@ -274,7 +273,7 @@ public class SRPN {
      *
      * @param currentNumToStore               Number to add
      * @param twoMinusInARow                  Directly preceding the number, were there two minuses in a row?
-     * @param minusReceivedAfterOtherOperator Directly preceding the two minuses was there another operator
+     * @param minusReceivedAfterOtherOperator Directly preceding the two minuses, was there another operator
      *                                        or was it the start of CommandBlock?
      */
     private void writeNumberToStack(double currentNumToStore, boolean twoMinusInARow, boolean minusReceivedAfterOtherOperator) {
@@ -304,8 +303,8 @@ public class SRPN {
     /**
      * Execute all instructions in the Execution Stack.
      *
-     * @param skipTopInstruction - If 'true' execution starts one from the top (used for retrospectively executing the
-     *                           stack if a minus sign turned out to be an operator and not a negative number sign).
+     * @param skipTopInstruction - If 'true' execution starts one down from the top (used for retrospectively executing
+     *                          the stack if a minus sign turned out to be an operator, and not a negative number sign).
      */
     private void executeInlineExecutionStack(boolean skipTopInstruction) {
         char TopInstruction = 0;
@@ -390,7 +389,7 @@ public class SRPN {
                     rArray_position = ++rArray_position % rArray.length;
                 }
                 break;
-/* DEBUG FUNCTIONALITY
+/* Following are used for debugging only
             case 'c': //!!!!REMOVE BEFORE GOING TO PRODUCTION!!!!
                 DEBUG_Reset_ALL();
                 break;
@@ -535,6 +534,13 @@ public class SRPN {
         firstNum = rp_NumberStack.get(topStackIndex - 1);
         secondNum = rp_NumberStack.get(topStackIndex);
     }
+
+/* ****************************************************************************************************************** */
+    /*
+     * FUNCTIONS BELOW THIS POINT ARE USED FOR DEVELOPMENT ONLY AND MAY REQUIRE LINES OF CODE
+     * UNCOMMENTING IN THE MAIN SECTION TO WORK
+     */
+
 
     /**
      * Function Prints the entire stack
