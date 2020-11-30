@@ -168,6 +168,7 @@ public class SRPN {
                         // Loop through characters in commandBlock.
                         for (int i = 0; i < commandBlock.length(); i++) {
                             currentChar = commandBlock.charAt(i);
+                            receivedUnrecognisedChar = false;
                             if (!inCommentMode) {
                                 try {
                                     currentNumInChar = Double.parseDouble(String.valueOf(currentChar));
@@ -272,10 +273,7 @@ public class SRPN {
                                     }//--end of Bodmas Operator Validity Check
                                 }//--end of for loop parseDouble exception
                             }//--end of Comment mode check
-                            isFirstChar = false;
-                            if (receivedUnrecognisedChar){
-                                isFirstChar = true;
-                            }
+                            isFirstChar = receivedUnrecognisedChar;
                         }//--end of single character loop.
                     }//--end of check for comment mode.
 
