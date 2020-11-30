@@ -633,7 +633,7 @@ public class SRPNTest {
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
     @Test
-    public void extraTestPlusDoubleMultiplyDivide() {
+    public void extraTestDoubleMultiplyDivide() {
         srpn.processCommand("5");
         srpn.processCommand("5");
         srpn.processCommand("**/2");

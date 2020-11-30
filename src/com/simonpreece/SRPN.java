@@ -31,9 +31,11 @@ import java.util.Stack;
  * The action is discarded, but this does not reset the stack or prevent further actions when they are being
  * entered one at a time.
  * # Stack in the original is 23 elements deep.
- * # Displays warning "Stack overflow." when trying to put an entry on the stack beyond the maximum stack size; this discards any items added but does not reset the stack or prevent further actions which would not increase stack size.
- * # Displays warning "Stack underflow." when trying to perform operations without enough entries (2) on the stack this discards any actions added but does not reset the stack or prevent further actions.
- * # Entering equals '=' output the value held at the top of the stack.
+ * # Displays warning "Stack overflow." when trying to put an entry on the stack beyond the maximum stack size; this
+ * discards any items added but does not reset the stack or prevent further actions which would not increase stack size.
+ * # Displays warning "Stack underflow." when trying to perform operations without enough entries (2) on the stack;
+ * this discards any actions added but does not reset the stack or prevent further actions.
+ * # Entering equals '=' outputs the value held at the top of the stack at that point in the calculation.
  * # If '=' is entered with nothing in the stack "Stack empty." is displayed.
  * # Dividing by zero gives a handled error "Divide by 0."
  * # Using Modulus by zero throw an UN-handled error and EXITS the program
@@ -304,7 +306,7 @@ public class SRPN {
      * Execute all instructions in the Execution Stack.
      *
      * @param skipTopInstruction - If 'true' execution starts one down from the top (used for retrospectively executing
-     *                          the stack if a minus sign turned out to be an operator, and not a negative number sign).
+     *                           the stack if a minus sign turned out to be an operator, and not a negative number sign).
      */
     private void executeInlineExecutionStack(boolean skipTopInstruction) {
         char TopInstruction = 0;
@@ -489,8 +491,13 @@ public class SRPN {
      * Display the current stack on a new line per entry with no other formatting.
      */
     private void displayStack() {
-        for (int i = 0; i < rp_NumberStack.size(); i++) {
-            System.out.println(rp_NumberStack.get(i).intValue());
+        if (rp_NumberStack.size() == 0) {
+            System.out.println(Integer.MIN_VALUE);
+        }
+        else {
+            for (int i = 0; i < rp_NumberStack.size(); i++) {
+                System.out.println(rp_NumberStack.get(i).intValue());
+            }
         }
     }
 
@@ -535,7 +542,7 @@ public class SRPN {
         secondNum = rp_NumberStack.get(topStackIndex);
     }
 
-/* ****************************************************************************************************************** */
+    /* ****************************************************************************************************************** */
     /*
      * FUNCTIONS BELOW THIS POINT ARE USED FOR DEVELOPMENT ONLY AND MAY REQUIRE LINES OF CODE
      * UNCOMMENTING IN THE MAIN SECTION TO WORK
