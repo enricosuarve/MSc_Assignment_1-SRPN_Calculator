@@ -120,7 +120,7 @@ public class SRPN {
         double currentNum, currentNumInChar, currentNumToStore;
         int currentTopOfStack;
         boolean isNumToStore, isFirstChar, lastCharWasOperator,
-                minusReceivedAfterOtherOperator, lastCharWasMinus, twoMinusInARow;
+                minusReceivedAfterOtherOperator, lastCharWasMinus, twoMinusInARow, receivedUnrecognisedChar;
 
         if (s.length() > 0) { // Ignore empty lines as nothing to do.
             do {
@@ -134,11 +134,14 @@ public class SRPN {
                 minusReceivedAfterOtherOperator = false;
                 lastCharWasMinus = false;
                 twoMinusInARow = false;
+                receivedUnrecognisedChar = false;
                 try {
                     // Check if commandBlock is a valid long and throw an Exception if not.
                     currentNum = Long.parseLong(commandBlock);
                     //noinspection StatementWithEmptyBody
                     if (!inCommentMode) {
+                        receivedUnrecognisedChar = false;
+
                         /* Add to stack if there is space and the number does NOT start with a '+' (for parseLong this
                             means a number is positive, but not in the original SRPN, where it means 'add results to
                             current top of stack'. */
@@ -187,13 +190,15 @@ public class SRPN {
                                         }
                                         currentNumToStore = 0;
                                         isNumToStore = false;
-                                        isFirstChar = true;
+                                        receivedUnrecognisedChar = true;
                                         lastCharWasOperator = false;
                                         minusReceivedAfterOtherOperator = false;
                                         lastCharWasMinus = false;
                                         twoMinusInARow = false;
+
                                     }
                                     else {
+                                        receivedUnrecognisedChar = false;
                                         if (isNumToStore) {
                                             if (isWithinStackRange(true, false)) {
                                                 writeNumberToStack(currentNumToStore, twoMinusInARow, minusReceivedAfterOtherOperator);
@@ -268,6 +273,9 @@ public class SRPN {
                                 }//--end of for loop parseDouble exception
                             }//--end of Comment mode check
                             isFirstChar = false;
+                            if (receivedUnrecognisedChar){
+                                isFirstChar = true;
+                            }
                         }//--end of single character loop.
                     }//--end of check for comment mode.
 

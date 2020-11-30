@@ -801,7 +801,6 @@ public class SRPNTest {
     @Test
     public void extraTestUnrecognisedOperatorEffectivelyTreatedAsASpaceWithDoubleMinus() {
         srpn.processCommand("5l--2");
-        assertEquals("Unrecognised operator or operand \"l\".", getLatestPrintedContent());
         String[] strArrayExpected = {"Unrecognised operator or operand \"l\".",
                 "Stack underflow."};
         List<String> listExpected = Arrays.asList(strArrayExpected);
