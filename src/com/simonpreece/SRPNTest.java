@@ -798,6 +798,19 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+    @Test
+    public void extraTestUnrecognisedOperatorEffectivelyTreatedAsASpaceWithDoubleMinus() {
+        srpn.processCommand("5l--2");
+        assertEquals("Unrecognised operator or operand \"l\".", getLatestPrintedContent());
+        String[] strArrayExpected = {"Unrecognised operator or operand \"l\".",
+                "Stack underflow."};
+        List<String> listExpected = Arrays.asList(strArrayExpected);
+        assertEquals(listExpected, getAllPrintedLinesAndRefresh());
+        srpn.processCommand("d");
+        String[] strArrayExpected2 = {"3"};
+        List<String> listExpected2 = Arrays.asList(strArrayExpected2);
+        assertEquals(listExpected2, getAllPrintedLinesAndRefresh());
+    }
 
     /*
         assertEquals("", getLatestPrintedContent());
