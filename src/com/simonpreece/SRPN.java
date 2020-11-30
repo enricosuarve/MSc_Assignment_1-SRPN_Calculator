@@ -11,54 +11,51 @@ import java.util.Stack;
  * as closely as possible. Note that this includes not adding or enhancing existing features."
  **/
 
-/*
- *
- * =============================================================================
+/* =============================================================================
  * Standard RPN behaviour - to be matched:
  * =============================================================================
  * Standard Reverse Polish Notation description: https://en.wikipedia.org/wiki/Reverse_Polish_notation
  * Reverse Polish Notation takes at least 2 operands into a stack and then an operator; any calculations are executed in
  *  reverse order from that in which operators were received and always on the top 2 operands in the stack (with no operator
  *  priority); when executing, the top two operators are removed from the stack and the result put back in their place.
- *       e.g. 2 4 8 6 + - * would equal (4-(8*6))+2 = -88
+ *       e.g. 2 4 + 3 * would equal (2 + 4) * 3 = 18
  *
  *
  * =============================================================================
  * Program specific behaviour by original SRPN calculator - to be replicated
  * =============================================================================
- * When first opened the prompt displayed is "You can now start interacting with the SRPN calculator".
+ * When first opened, the prompt displayed is "You can now start interacting with the SRPN calculator".
  *
- * Tool recognises standard operators ( ^, %, /, *, +, - ) and executes them in that BODMAS order.
+ * Original recognises standard operators ( ^, %, /, *, +, - ).
  *
  * The tool mimics using a Binary signed 2's complement integer to store values (Min = -2147483648, Max =  2147483647),
  *  HOWEVER although results are displayed as integers and integer division is mimicked (i.e. 5 2 / displays 2), if
  *  the user multiplies the result by 2 again they get back to 5; meaning that the value stored on the stack
- *  is a real number.
+ *  is a real number (2.5).
  *
- * The tool copes with saturation by making any number entered or calculation arrived at, that goes beyond the above
- *  min/max equal to the min/max
+ * The tool copes with saturation by making any number entered, or calculation arrived at which goes beyond the above
+ *  min/max, equal to the min/max.
  *          i.e. -2147483648 - 1 = -2147483648 and
  *                2147483647 + 1 = 2147483647
  *
- * Warning displayed if receives an unknown operator (e.g. 'g') is 'Unrecognised operator or operand "g".'
- *  The action is discarded, but this does not reset the stack or prevent further actions when they are being
+ * A warning is displayed if receives an unknown operator (e.g. 'g' displays 'Unrecognised operator or operand "g".'
+ *  The operator is discarded, but this does not reset the stack or prevent further actions when they are being
  *  entered one at a time.
  *
  * Stack in the original is 23 elements deep.
  *
- * Displays warning "Stack overflow." when trying to put an entry on the stack beyond the maximum stack size; this
- *  discards any items added but does not reset the stack or prevent further actions which would not increase stack size.
+ * SRPN displays the warning "Stack overflow.", when trying to put an entry on the stack beyond the maximum stack size;
+ *  this discards any numbers added but does not reset the stack or prevent further actions or stop further commands.
  *
- * Displays warning "Stack underflow." when trying to perform operations without enough entries (2) on the stack;
- *      this discards any actions added but does not reset the stack or prevent further actions.
+ * Warning "Stack underflow.", is displayed when trying to perform operations without enough entries (2) on the stack;
+ *  this discards any operators used, but does not reset the stack or prevent further actions.
  *
- * Entering equals '=' outputs the value held at the top of the stack at that point in the calculation.
+ * Entering equals '=' outputs the value held at the top of the stack at that point in the calculation; if '=' is
+ *  entered with nothing in the stack "Stack empty." is displayed.
  *
- * If '=' is entered with nothing in the stack "Stack empty." is displayed.
+ * Dividing by zero gives a handled error "Divide by 0.".
  *
- * Dividing by zero gives a handled error "Divide by 0."
- *
- * Using Modulus by zero throw an UN-handled error and EXITS the program
+ * Using Modulus by zero throw an UN-handled error and EXITS the program.
  *
  * 'd' displays each item in the stack, from first position to last on a new line per item with no additional formatting.
  *
@@ -67,12 +64,12 @@ import java.util.Stack;
  * Entering ' # ' turns on and off commenting ('#' must be on its own with no adjacent characters) - anything entered
  *  between 2 x # symbols is ignored; this occurs whether the entries are on single or multiple lines.
  *
- * If entering a string that includes an unrecognised character (i.e. "2*2l4"); the "l" in this case is treated as
- *  whitespace and subsequent commands are executed as if from another commandBlock
+ * If entering a string that includes an unrecognised character (i.e. "2*2l4"); the 'l' in this case is treated as
+ *  whitespace and subsequent commands are executed as if from another commandBlock.
  *
- * A newline on its own is ignored and does not trigger an error or warning
+ * A newline on its own is ignored and does not trigger an error or warning.
  *
- * Leading and trailing whitespace is ignored
+ * Leading and trailing whitespace is ignored.
  *
  * 'r' generates a 'pseudo-random' number which is actually a number from the following list of 32 integers which
  *      cycles through in order:
@@ -100,30 +97,32 @@ import java.util.Stack;
  *      521595368
  *
  * Data validity checks are performed in the following order:
- *  1. check if the operator is recognised and error if not
- *  2. if the command is "d" or "=" output results specified
- *  3a. if there is more than one item in the stack
- *      i) perform calculation
- *      ii) place the result in position-1
- *      iii) move the position pointer back one place
- *  3b. if there are not enough items on the stack, display an error, do not keep the operator
+ *  1. check if the operator is recognised and error if not.
+ *  2. if the command is "d" or "=" output results specified.
+ *  3a. if there is more than one item in the stack.
+ *      i) perform calculation.
+ *      ii) place the result in position-1.
+ *      iii) move the position pointer back one place.
+ *  3b. if there are not enough items on the stack, display an error, do not keep the operator.
  *
  *  ~~~~~~~~~~~~~~~~~~~~
- *  single line commands
+ *  Single Line Commands
  *  ~~~~~~~~~~~~~~~~~~~~
- * When a command is entered inline (i.e. 5*6+6) the original tool executes this in 'normal polish'
- * Inline commands entered with sections separated by whitespace (i.e. 55 5*6 + 2+2), each section 'commandBlock' is executed as if it
- *  were on a newline.
- * As inline commands are processed they add numbers to the stack as normal, if multiple operators are entered
- *  i.e. 5+6*3/5 these are added to a separate stack which executes if a new operator is lower down the BODMAS priorities
- *  then the previous, using RPN this achieves 'normal' polish, this also applies if they are entered consecutively
- *   (i.e. ++/* would execute in the order /++* )
- * The stack 'overflows' as normal
- * If an operator is found at the end of a command block this is executed first on the top two items of the stack.
+ * When a command is entered inline with no whitespace (i.e. 5*6+6) the original tool executes this in 'normal polish'.
+ * If Inline commands are entered with sections separated by whitespace (i.e. 55 5*6 + 2+2), each section 'commandBlock'
+ *  is executed as if it were on a newline.
+ * As inline commands are processed they add numbers to the stack as normal, if multiple operators are entered,
+ *  i.e. 5+6*3/5 these are added to a separate stack; this stack executes in reverse 'last in first out' order whenever
+ *  a new operator is encountered which is lower down the BODMAS priorities than the previous, using reverse polish
+ *  methodology. This achieves the above 'normal' polish execution, this also applies if operators are entered
+ *  consecutively.
+ *      (i.e. ++/* would execute in the order /++* )
+ * The stack 'overflows' as normal.
+ * If an operator is found at the end of a command block, this is executed first on the top two items of the stack.
  * if a minus is encountered immediately after another operator it is not executed immediately and if a number is
  *  encountered next is used as a negative number sign, this does NOT apply if two minuses come either at the start of a
- *  commandBlock or after another operator, in which case they are added to the stack and executed as minuses
- *   (i.e. 5--7 = 12,  10 20 30 --10 = [10, 0])
+ *  commandBlock or after another operator, in which case they are added to the stack and executed as minuses.
+ *   (i.e. 5--7 = 12 but 10 20 30 --10 = [10, 0])
  *
  * =============================================================================
  */
@@ -267,24 +266,26 @@ public class SRPN {
                                             }
                                         }
 
-                                        if (lastCharWasOperator && !lastCharWasMinus && currentChar == '-') { /* If a Minus is received after
-                                            another operator it could be a negative number sign, do nothing for now
-                                            but note that the condition has happened. */
+                                        /* If a Minus is received after another operator it could be a negative number
+                                            sign; do nothing for now but note that the condition has happened. */
+                                        if (lastCharWasOperator && !lastCharWasMinus && currentChar == '-') {
                                             minusReceivedAfterOtherOperator = true;
                                         }
+                                        /* Original treats minuses at the start of a commandBlock as if they were
+                                            following another operator */
                                         if (isFirstChar && currentChar == '-') {
-                                            minusReceivedAfterOtherOperator = true; /* Original treats minuses at the start of a commandBlock as if they were following another operator */
+                                            minusReceivedAfterOtherOperator = true;
                                         }
-
+                                        /* In original 'd' triggers an execution of the stack so far and displays the
+                                            stack. */
                                         if (currentChar == 'd') {
-                                            executeInlineExecutionStack(false); /* In original 'd' triggers an
-                                                execution of the stack so far and displays the stack. */
+                                            executeInlineExecutionStack(false);
                                             displayStack();
                                         }
                                         if (currentChar == '=') {
                                         /* command has received an equals - in the original this runs immediately,
-                                         displaying the number at the top of the stack prior to any further calculations
-                                         ; hence checking for it here. */
+                                            displaying the number at the top of the stack prior to any further
+                                            calculations; hence checking for it here. */
                                             if (rp_NumberStack.size() > 0) {
                                                 System.out.println(rp_NumberStack.peek().intValue());
                                             }
@@ -557,6 +558,7 @@ public class SRPN {
      * Display the current stack on a new line per entry with no other formatting.
      */
     private void displayStack() {
+        /* Original has a feature where it outputs Integer.MIN_VALUE if the stack is empty */
         if (rp_NumberStack.size() == 0) {
             System.out.println(Integer.MIN_VALUE);
         }
@@ -597,7 +599,7 @@ public class SRPN {
     }
 
     /**
-     * assigns the numbers for calculation processing - moved into its own function purely to avoid repeating overly in
+     * Assigns the numbers for calculation processing - moved into its own function purely to avoid repeating overly in
      * 'performCalculation' switch statement and so that assignment does not occur prior to checking there are enough
      * items in the array.  The arrangement is not as elegant as I would like but this seems the best compromise to
      * ensure that checks are performed in the same order as the original SRPN calculator and preserve code readability.
@@ -608,12 +610,13 @@ public class SRPN {
         secondNum = rp_NumberStack.get(topStackIndex);
     }
 
+
+
     /* ****************************************************************************************************************** */
     /*
      * FUNCTIONS BELOW THIS POINT ARE USED FOR DEVELOPMENT ONLY AND MAY REQUIRE LINES OF CODE
      * UNCOMMENTING IN THE MAIN SECTION TO WORK
      */
-
 
     /**
      * Function Prints the entire stack
