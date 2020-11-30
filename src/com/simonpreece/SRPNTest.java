@@ -810,6 +810,16 @@ public class SRPNTest {
         List<String> listExpected2 = Arrays.asList(strArrayExpected2);
         assertEquals(listExpected2, getAllPrintedLinesAndRefresh());
     }
+    @Test
+    public void extraTestRandomCalculation() {
+        srpn.processCommand("5+5*6/2-6++5-6*22");
+        assertEquals("Stack underflow.", getLatestPrintedContent());
+        srpn.processCommand("d");
+        String[] strArrayExpected = {"-101"};
+        List<String> listExpected = Arrays.asList(strArrayExpected);
+        assertEquals(listExpected, getAllPrintedLinesAndRefresh());
+    }
+
 
     /*
         assertEquals("", getLatestPrintedContent());

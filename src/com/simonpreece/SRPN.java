@@ -12,77 +12,119 @@ import java.util.Stack;
  **/
 
 /*
+ *
  * =============================================================================
  * Standard RPN behaviour - to be matched:
  * =============================================================================
  * Standard Reverse Polish Notation description: https://en.wikipedia.org/wiki/Reverse_Polish_notation
- * Reverse Polish Notation takes the values first and then the operator and prior to executing; any sums are added to a
- * stack which is executed and condensed back to a zero stack according to subsequent s IMPROVE DESCRIPTION
+ * Reverse Polish Notation takes at least 2 operands into a stack and then an operator; any calculations are executed in
+ *  reverse order from that in which operators were received and always on the top 2 operands in the stack (with no operator
+ *  priority); when executing, the top two operators are removed from the stack and the result put back in their place.
+ *       e.g. 2 4 8 6 + - * would equal (4-(8*6))+2 = -88
+ *
  *
  * =============================================================================
  * Program specific behaviour by original SRPN calculator - to be replicated
  * =============================================================================
- * # When first opened the prompt displayed is "You can now start interacting with the SRPN calculator".
- * # Tool recognises standard operators ( ^, %, /, *, +, - ) and executes them in that BODMAS order.
- * # The tool mimics using a Binary signed 2's complement integer to store values (Min = -2147483648, Max =  2147483647),
- *      HOWEVER although results are displayed as integers and integer division is mimicked (i.e. 5 2 / displays 2), if
- *      the user multiplies the result by 2 again they get back to 5; meaning that the value stored on the stack
- *      is a real number.
- * # The tool copes with saturation by making any number entered or calculation arrived at that goes beyond the above
- *      min/max equal to the min/max
+ * When first opened the prompt displayed is "You can now start interacting with the SRPN calculator".
+ *
+ * Tool recognises standard operators ( ^, %, /, *, +, - ) and executes them in that BODMAS order.
+ *
+ * The tool mimics using a Binary signed 2's complement integer to store values (Min = -2147483648, Max =  2147483647),
+ *  HOWEVER although results are displayed as integers and integer division is mimicked (i.e. 5 2 / displays 2), if
+ *  the user multiplies the result by 2 again they get back to 5; meaning that the value stored on the stack
+ *  is a real number.
+ *
+ * The tool copes with saturation by making any number entered or calculation arrived at, that goes beyond the above
+ *  min/max equal to the min/max
  *          i.e. -2147483648 - 1 = -2147483648 and
  *                2147483647 + 1 = 2147483647
- * # Warning displayed if receives an unknown operator (e.g. 'g') is 'Unrecognised operator or operand "g".'
- *      The action is discarded, but this does not reset the stack or prevent further actions when they are being
- *      entered one at a time.
- * # Stack in the original is 23 elements deep.
- * # Displays warning "Stack overflow." when trying to put an entry on the stack beyond the maximum stack size; this
- *      discards any items added but does not reset the stack or prevent further actions which would not increase stack size.
- * # Displays warning "Stack underflow." when trying to perform operations without enough entries (2) on the stack;
+ *
+ * Warning displayed if receives an unknown operator (e.g. 'g') is 'Unrecognised operator or operand "g".'
+ *  The action is discarded, but this does not reset the stack or prevent further actions when they are being
+ *  entered one at a time.
+ *
+ * Stack in the original is 23 elements deep.
+ *
+ * Displays warning "Stack overflow." when trying to put an entry on the stack beyond the maximum stack size; this
+ *  discards any items added but does not reset the stack or prevent further actions which would not increase stack size.
+ *
+ * Displays warning "Stack underflow." when trying to perform operations without enough entries (2) on the stack;
  *      this discards any actions added but does not reset the stack or prevent further actions.
- * # Entering equals '=' outputs the value held at the top of the stack at that point in the calculation.
- * # If '=' is entered with nothing in the stack "Stack empty." is displayed.
- * # Dividing by zero gives a handled error "Divide by 0."
- * # Using Modulus by zero throw an UN-handled error and EXITS the program
- * # 'd' displays each item in the stack, from first position to last on a new line per item with no additional formatting.
- * # If 'd' is entered when the stack is empty '-2147483648' is displayed.
- * # Entering ' # ' turns on and off commenting ('#' must be on its own with no adjacent characters) - anything entered
- *      between 2 x # symbols is ignored; this occurs whether the entries are on single or multiple lines.
- * # If entering a string that includes an unrecognised character (i.e. "2*2l4") the "l" in this case seems to be
- *      substituted by the previous operator "*" and the output to the stack is 2 then 8 INVESTIGATE MORE
- * # a newline on its own is ignored and does not trigger an error or warning
- * # leading and trailing whitespace is ignored
- * # 'r' generates a 'pseudo-random' number which is actually a number from the following list of 32 integers which cycles through in order:
- * 1804289383
- * 846930886
- * 1681692777
- * 1714636915
- * 1957747793
- * 424238335
- * 719885386
- * 1649760492
- * 596516649
- * 1189641421
- * 1025202362
- * 1350490027
- * 783368690
- * 1102520059
- * 2044897763
- * 1967513926
- * 1365180540
- * 1540383426
- * 304089172
- * 1303455736
- * 35005211
- * 521595368
- * <p>
+ *
+ * Entering equals '=' outputs the value held at the top of the stack at that point in the calculation.
+ *
+ * If '=' is entered with nothing in the stack "Stack empty." is displayed.
+ *
+ * Dividing by zero gives a handled error "Divide by 0."
+ *
+ * Using Modulus by zero throw an UN-handled error and EXITS the program
+ *
+ * 'd' displays each item in the stack, from first position to last on a new line per item with no additional formatting.
+ *
+ * If 'd' is entered when the stack is empty '-2147483648' is displayed.
+ *
+ * Entering ' # ' turns on and off commenting ('#' must be on its own with no adjacent characters) - anything entered
+ *  between 2 x # symbols is ignored; this occurs whether the entries are on single or multiple lines.
+ *
+ * If entering a string that includes an unrecognised character (i.e. "2*2l4"); the "l" in this case is treated as
+ *  whitespace and subsequent commands are executed as if from another commandBlock
+ *
+ * A newline on its own is ignored and does not trigger an error or warning
+ *
+ * Leading and trailing whitespace is ignored
+ *
+ * 'r' generates a 'pseudo-random' number which is actually a number from the following list of 32 integers which
+ *      cycles through in order:
+ *      1804289383
+ *      846930886
+ *      1681692777
+ *      1714636915
+ *      1957747793
+ *      424238335
+ *      719885386
+ *      1649760492
+ *      596516649
+ *      1189641421
+ *      1025202362
+ *      1350490027
+ *      783368690
+ *      1102520059
+ *      2044897763
+ *      1967513926
+ *      1365180540
+ *      1540383426
+ *      304089172
+ *      1303455736
+ *      35005211
+ *      521595368
+ *
  * Data validity checks are performed in the following order:
- * 1. check if the operator is recognised and error if not
- * 2. if the command is "d" or "=" output results specified and stop
- * 3a. if the operator is valid and there is more than one item in the stack
- * i) perform calculation
- * ii) place the result in position-1
- * iii) move the position pointer back one place
+ *  1. check if the operator is recognised and error if not
+ *  2. if the command is "d" or "=" output results specified
+ *  3a. if there is more than one item in the stack
+ *      i) perform calculation
+ *      ii) place the result in position-1
+ *      iii) move the position pointer back one place
+ *  3b. if there are not enough items on the stack, display an error, do not keep the operator
+ *
+ *  ~~~~~~~~~~~~~~~~~~~~
+ *  single line commands
+ *  ~~~~~~~~~~~~~~~~~~~~
+ * When a command is entered inline (i.e. 5*6+6) the original tool executes this in 'normal polish'
+ * Inline commands entered with sections separated by whitespace (i.e. 55 5*6 + 2+2), each section 'commandBlock' is executed as if it
+ *  were on a newline.
+ * As inline commands are processed they add numbers to the stack as normal, if multiple operators are entered
+ *  i.e. 5+6*3/5 these are added to a separate stack which executes if a new operator is lower down the BODMAS priorities
+ *  then the previous, using RPN this achieves 'normal' polish, this also applies if they are entered consecutively
+ *   (i.e. ++/* would execute in the order /++* )
+ * The stack 'overflows' as normal
+ * If an operator is found at the end of a command block this is executed first on the top two items of the stack.
+ * if a minus is encountered immediately after another operator it is not executed immediately and if a number is
+ *  encountered next is used as a negative number sign, this does NOT apply if two minuses come either at the start of a
+ *  commandBlock or after another operator, in which case they are added to the stack and executed as minuses
+ *   (i.e. 5--7 = 12,  10 20 30 --10 = [10, 0])
+ *
  * =============================================================================
  */
 
@@ -134,14 +176,11 @@ public class SRPN {
                 minusReceivedAfterOtherOperator = false;
                 lastCharWasMinus = false;
                 twoMinusInARow = false;
-                receivedUnrecognisedChar = false;
                 try {
                     // Check if commandBlock is a valid long and throw an Exception if not.
                     currentNum = Long.parseLong(commandBlock);
                     //noinspection StatementWithEmptyBody
                     if (!inCommentMode) {
-                        receivedUnrecognisedChar = false;
-
                         /* Add to stack if there is space and the number does NOT start with a '+' (for parseLong this
                             means a number is positive, but not in the original SRPN, where it means 'add results to
                             current top of stack'. */
@@ -196,10 +235,8 @@ public class SRPN {
                                         minusReceivedAfterOtherOperator = false;
                                         lastCharWasMinus = false;
                                         twoMinusInARow = false;
-
                                     }
                                     else {
-                                        receivedUnrecognisedChar = false;
                                         if (isNumToStore) {
                                             if (isWithinStackRange(true, false)) {
                                                 writeNumberToStack(currentNumToStore, twoMinusInARow, minusReceivedAfterOtherOperator);
