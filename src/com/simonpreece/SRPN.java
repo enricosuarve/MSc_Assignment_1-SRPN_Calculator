@@ -9,12 +9,16 @@ import java.util.Stack;
  * that all arithmetic is saturated, i.e. when it reaches the maximum value that can be stored in a variable, it stays
  * at the maximum rather than wrapping around...Your task is to write a program which matches the functionality of SRPN
  * as closely as possible. Note that this includes not adding or enhancing existing features."
- * <p>
- * <p>
- * Standard RPN behaviour - to be matched
- * <p>
+ **/
+
+/*
+ * =============================================================================
+ * Standard RPN behaviour - to be matched:
+ * =============================================================================
  * Standard Reverse Polish Notation description: https://en.wikipedia.org/wiki/Reverse_Polish_notation
- * Reverse Polish Notation takes the values first and then the operator and prior to executing; any sums are added to a stack which is executed and condensed back to a zero stack according to subsequent s IMPROVE DESCRIPTION
+ * Reverse Polish Notation takes the values first and then the operator and prior to executing; any sums are added to a
+ * stack which is executed and condensed back to a zero stack according to subsequent s IMPROVE DESCRIPTION
+ *
  * =============================================================================
  * Program specific behaviour by original SRPN calculator - to be replicated
  * =============================================================================
@@ -81,6 +85,8 @@ import java.util.Stack;
  * iii) move the position pointer back one place
  * =============================================================================
  */
+
+
 @SuppressWarnings({"Convert2streamapi", "ForLoopReplaceableByForEach"})
 public class SRPN {
 
@@ -171,10 +177,24 @@ public class SRPN {
                                                                                          - display warning if not. */
                                     if (bodmasPriority(currentChar) == 0) {
                                         System.out.println("Unrecognised operator or operand \"" + currentChar + "\".");
-                                    }
-                                    else {
+
+                                        /* Unrecognised characters act as whitespace so save any numbers and reset all flags */
                                         if (isNumToStore) { /* Check if have already previously been passed a number, if so
                                                                 add it to the stack and reset NumToStore variables. */
+                                            if (isWithinStackRange(true, false)) {
+                                                writeNumberToStack(currentNumToStore, twoMinusInARow, minusReceivedAfterOtherOperator);
+                                            }
+                                        }
+                                        currentNumToStore = 0;
+                                        isNumToStore = false;
+                                        isFirstChar = true;
+                                        lastCharWasOperator = false;
+                                        minusReceivedAfterOtherOperator = false;
+                                        lastCharWasMinus = false;
+                                        twoMinusInARow = false;
+                                    }
+                                    else {
+                                        if (isNumToStore) {
                                             if (isWithinStackRange(true, false)) {
                                                 writeNumberToStack(currentNumToStore, twoMinusInARow, minusReceivedAfterOtherOperator);
                                             }
@@ -308,7 +328,8 @@ public class SRPN {
      * Execute all instructions in the Execution Stack.
      *
      * @param skipTopInstruction - If 'true' execution starts one down from the top (used for retrospectively executing
-     *                           the stack if a minus sign turned out to be an operator, and not a negative number sign).
+     *                           the stack if a minus sign turned out to be an operator, and not a negative number
+     *                           sign).
      */
     private void executeInlineExecutionStack(boolean skipTopInstruction) {
         char TopInstruction = 0;
