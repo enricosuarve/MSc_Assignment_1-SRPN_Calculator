@@ -632,6 +632,7 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+
     @Test
     public void extraTestDoubleMultiplyDivide() {
         srpn.processCommand("5");
@@ -788,10 +789,18 @@ public class SRPNTest {
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
 
+    @Test
+    public void extraTestUnrecognisedOperatorEffectivelyTreatedAsASpace() {
+        srpn.processCommand("2*3l4");
+        assertEquals("Unrecognised operator or operand \"l\".", getLatestPrintedContent());
+        srpn.processCommand("d");
+        String[] strArrayExpected = {"2", "12"};
+        List<String> listExpected = Arrays.asList(strArrayExpected);
+        assertEquals(listExpected, getAllPrintedLinesAndRefresh());
+    }
+
     /*
-
         assertEquals("", getLatestPrintedContent());
-
      */
 
 

@@ -19,31 +19,33 @@ import java.util.Stack;
  * Program specific behaviour by original SRPN calculator - to be replicated
  * =============================================================================
  * # When first opened the prompt displayed is "You can now start interacting with the SRPN calculator".
- * # The tool mimics using Binary signed 2's complement integer to store values (Min = -2147483648, Max =  2147483647)
- * HOWEVER although results are displayed as integers and integer division is mimicked (i.e. 5 2 / displays 2),
- * if the user multiplies the result by 2 again they get back to 5,
- * meaning that the value stored on the stack is a real number.
+ * # Tool recognises standard operators ( ^, %, /, *, +, - ) and executes them in that BODMAS order.
+ * # The tool mimics using a Binary signed 2's complement integer to store values (Min = -2147483648, Max =  2147483647),
+ *      HOWEVER although results are displayed as integers and integer division is mimicked (i.e. 5 2 / displays 2), if
+ *      the user multiplies the result by 2 again they get back to 5; meaning that the value stored on the stack
+ *      is a real number.
  * # The tool copes with saturation by making any number entered or calculation arrived at that goes beyond the above
- * min/max equal to the min/max
- * i.e. -2147483648 - 1 = -2147483648 and
- * 2147483647 + 1 = 2147483647
+ *      min/max equal to the min/max
+ *          i.e. -2147483648 - 1 = -2147483648 and
+ *                2147483647 + 1 = 2147483647
  * # Warning displayed if receives an unknown operator (e.g. 'g') is 'Unrecognised operator or operand "g".'
- * The action is discarded, but this does not reset the stack or prevent further actions when they are being
- * entered one at a time.
+ *      The action is discarded, but this does not reset the stack or prevent further actions when they are being
+ *      entered one at a time.
  * # Stack in the original is 23 elements deep.
  * # Displays warning "Stack overflow." when trying to put an entry on the stack beyond the maximum stack size; this
- * discards any items added but does not reset the stack or prevent further actions which would not increase stack size.
+ *      discards any items added but does not reset the stack or prevent further actions which would not increase stack size.
  * # Displays warning "Stack underflow." when trying to perform operations without enough entries (2) on the stack;
- * this discards any actions added but does not reset the stack or prevent further actions.
+ *      this discards any actions added but does not reset the stack or prevent further actions.
  * # Entering equals '=' outputs the value held at the top of the stack at that point in the calculation.
  * # If '=' is entered with nothing in the stack "Stack empty." is displayed.
  * # Dividing by zero gives a handled error "Divide by 0."
  * # Using Modulus by zero throw an UN-handled error and EXITS the program
  * # 'd' displays each item in the stack, from first position to last on a new line per item with no additional formatting.
- * # If "d" is entered with an empty stack '-2147483648' is displayed. REPLICATE THIS
- * # Entering '#' seems to turn on and off commenting - anything entered between 2 x # symbols is ignored; this occurs whether the entries are on single or multiple lines.
- * # "^" is 'to the power of'
- * # If entering a string that includes an unrecognised character (i.e. "2*2l4") the "l" in this case seems to be substituted by the previous operator "*" and the output to the stack is 2 then 8 INVESTIGATE MORE
+ * # If 'd' is entered when the stack is empty '-2147483648' is displayed.
+ * # Entering ' # ' turns on and off commenting ('#' must be on its own with no adjacent characters) - anything entered
+ *      between 2 x # symbols is ignored; this occurs whether the entries are on single or multiple lines.
+ * # If entering a string that includes an unrecognised character (i.e. "2*2l4") the "l" in this case seems to be
+ *      substituted by the previous operator "*" and the output to the stack is 2 then 8 INVESTIGATE MORE
  * # a newline on its own is ignored and does not trigger an error or warning
  * # leading and trailing whitespace is ignored
  * # 'r' generates a 'pseudo-random' number which is actually a number from the following list of 32 integers which cycles through in order:
