@@ -632,6 +632,17 @@ public class SRPNTest {
         List<String> listExpected = Arrays.asList(strArrayExpected);
         assertEquals(listExpected, getAllPrintedLinesAndRefresh());
     }
+    @Test
+    public void extraTestPlusDoubleMultiplyDivide() {
+        srpn.processCommand("5");
+        srpn.processCommand("5");
+        srpn.processCommand("**/2");
+        assertEquals("Stack underflow.", getLatestPrintedContent());
+        srpn.processCommand("d");
+        String[] strArrayExpected = {"12"};
+        List<String> listExpected = Arrays.asList(strArrayExpected);
+        assertEquals(listExpected, getAllPrintedLinesAndRefresh());
+    }
 
     @Test
     public void extraTestDoubleMinusPlusAtEndOfCalc() {
